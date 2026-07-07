@@ -1,0 +1,324 @@
+/* The room fills the window; everything else floats over it. */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body, #root, .app { height: 100%; overflow: hidden; }
+body {
+  background: #14110c;
+  color: #1b1812;
+  font-family: Georgia, 'Times New Roman', serif;
+  user-select: none;
+}
+canvas { display: block; }
+
+/* ---------- title screen ---------- */
+.title-screen {
+  position: fixed; inset: 0; z-index: 30;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; text-align: center; padding: 24px;
+  background:
+    radial-gradient(90% 70% at 50% 30%, rgba(255, 250, 234, 0.08), transparent 70%),
+    #14110c;
+  color: #e7e0cf;
+  animation: title-in 1.4s ease both;
+}
+@keyframes title-in { from { opacity: 0; } }
+.title-eyebrow {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; opacity: 0.55;
+}
+.title-screen h1 {
+  font-size: clamp(38px, 8vw, 72px); font-weight: 400; letter-spacing: 0.08em;
+}
+.title-tagline { font-style: italic; font-size: 18px; opacity: 0.7; }
+.enter-btn {
+  margin-top: 26px; padding: 13px 38px;
+  background: transparent; color: #e7e0cf;
+  border: 1px solid rgba(231, 224, 207, 0.5); border-radius: 2px;
+  font-family: inherit; font-size: 15px; font-style: italic; letter-spacing: 0.12em;
+  cursor: pointer; transition: background 0.3s, color 0.3s;
+}
+.enter-btn:hover, .enter-btn:focus-visible { background: #e7e0cf; color: #14110c; outline: none; }
+.title-hint {
+  margin-top: 20px; font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px; letter-spacing: 0.14em; opacity: 0.4;
+}
+.title-credit {
+  margin-top: 8px; font-style: italic; font-size: 12px; opacity: 0.35;
+}
+.title-instructions {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 26px;
+  margin-top: 16px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.65;
+}
+.title-instr-colour { color: #e8b33c; }
+.title-whisper {
+  margin-top: 16px; font-style: italic; font-size: 13px; opacity: 0.3;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- the cinema ---------- */
+.cinema-bar {
+  position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 20;
+  display: flex; gap: 14px;
+  animation: fade-in 1.2s ease both;
+}
+.cinema-btn {
+  padding: 10px 22px; border-radius: 2px; cursor: pointer;
+  background: rgba(20, 17, 12, 0.75); color: #e7e0cf;
+  border: 1px solid rgba(231, 224, 207, 0.35);
+  font-family: Georgia, serif; font-style: italic; font-size: 14px; letter-spacing: 0.08em;
+}
+.cinema-btn:hover { background: rgba(231, 224, 207, 0.92); color: #14110c; }
+
+/* ---------- eyes reopening ---------- */
+.eyes { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+.eyelid {
+  position: absolute; left: -5%; width: 110%; height: 60%;
+  background: #000;
+}
+.eyelid-top { top: -5%; border-radius: 0 0 50% 50% / 0 0 18% 18%; animation: lid-up 2.6s cubic-bezier(0.6, 0, 0.3, 1) both; }
+.eyelid-bottom { bottom: -5%; border-radius: 50% 50% 0 0 / 18% 18% 0 0; animation: lid-down 2.6s cubic-bezier(0.6, 0, 0.3, 1) both; }
+@keyframes lid-up { 0% { transform: translateY(0); } 18% { transform: translateY(0); } 100% { transform: translateY(-105%); } }
+@keyframes lid-down { 0% { transform: translateY(0); } 18% { transform: translateY(0); } 100% { transform: translateY(105%); } }
+.eyes-blur {
+  position: absolute; inset: 0;
+  backdrop-filter: blur(14px) brightness(1.35);
+  animation: eyes-clear 3.1s ease both;
+}
+@keyframes eyes-clear {
+  0% { opacity: 1; }
+  30% { opacity: 1; }
+  100% { opacity: 0; backdrop-filter: blur(0px) brightness(1); }
+}
+
+.void-quote { max-width: 62ch; }
+.void-by {
+  color: #8d8571; font-style: italic; font-size: 15px; margin-top: 14px;
+  animation: fade-in 2s ease both;
+}
+.spotify-embed {
+  display: block; width: 100%; height: 352px; margin-top: 20px;
+  border: none; border-radius: 12px;
+}
+.letter-reset {
+  display: block; margin: 26px auto 0; padding: 8px 18px;
+  background: transparent; border: 1px solid rgba(27, 24, 18, 0.3); border-radius: 2px;
+  font-family: Georgia, serif; font-style: italic; font-size: 13px;
+  color: inherit; cursor: pointer; opacity: 0.75;
+}
+.letter-reset:hover { opacity: 1; background: rgba(27, 24, 18, 0.06); }
+
+/* ---------- hud ---------- */
+.hud-top, .hud-bottom {
+  position: fixed; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center; gap: 26px;
+  padding: 16px 22px; pointer-events: none;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(27, 24, 18, 0.55);
+  text-shadow: 0 1px 3px rgba(240, 234, 218, 0.6);
+}
+.hud-top { top: 0; justify-content: space-between; }
+.hud-bottom { bottom: 0; }
+.hud-name { font-family: Georgia, serif; font-size: 14px; letter-spacing: 0.18em; }
+.hud-view { font-style: italic; text-transform: none; letter-spacing: 0.1em; font-family: Georgia, serif; font-size: 13px; }
+.hud-mute, .hud-reset {
+  pointer-events: auto; cursor: pointer;
+  background: transparent; border: 1px solid rgba(27, 24, 18, 0.3); border-radius: 2px;
+  padding: 5px 12px; font: inherit; color: inherit; letter-spacing: 0.16em; text-transform: uppercase;
+}
+.hud-mute:hover, .hud-reset:hover { background: rgba(27, 24, 18, 0.08); }
+.toast {
+  position: fixed; bottom: 68px; left: 50%; transform: translateX(-50%); z-index: 12;
+  padding: 10px 22px; border-radius: 2px;
+  background: rgba(20, 17, 12, 0.85); color: #e7e0cf;
+  font-style: italic; font-size: 15px;
+  animation: toast-in 0.5s ease both;
+  pointer-events: none; white-space: nowrap;
+}
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ---------- popups: shared ---------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: rgba(20, 17, 12, 0.45);
+  animation: fade-in 0.3s ease both;
+}
+.overlay-dark { background: rgba(8, 7, 5, 0.82); }
+@keyframes fade-in { from { opacity: 0; } }
+.sheet {
+  position: relative; width: min(560px, 92vw); max-height: 84vh; overflow-y: auto;
+  padding: 44px 46px 40px; border-radius: 3px;
+}
+.sheet h2 { font-size: 30px; font-weight: 400; margin-bottom: 4px; }
+.popup-sub { font-style: italic; opacity: 0.6; margin-bottom: 18px; font-size: 15px; }
+.popup-body { line-height: 1.7; font-size: 16px; max-width: 62ch; }
+.popup-link {
+  display: inline-block; margin-top: 22px; color: inherit;
+  font-style: italic; font-size: 16px;
+  text-decoration: underline; text-underline-offset: 4px;
+}
+.popup-link.as-button { background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; }
+.sheet-x {
+  position: absolute; top: 14px; right: 16px; z-index: 2;
+  background: none; border: none; cursor: pointer;
+  font-size: 17px; color: inherit; opacity: 0.5; padding: 6px;
+}
+.sheet-x:hover { opacity: 1; }
+
+/* ---------- paper (paintings): un-crumple / crumple ---------- */
+.paper {
+  color: #1b1812;
+  background:
+    radial-gradient(120% 90% at 20% 10%, rgba(120, 100, 70, 0.1), transparent 50%),
+    radial-gradient(100% 80% at 85% 90%, rgba(120, 100, 70, 0.12), transparent 55%),
+    radial-gradient(60% 50% at 60% 40%, rgba(255, 255, 250, 0.65), transparent 70%),
+    #f2ede2;
+  box-shadow: 0 30px 60px -20px rgba(10, 8, 5, 0.6), inset 0 0 40px rgba(120, 100, 70, 0.15);
+}
+.paper-open { animation: uncrumple 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes uncrumple {
+  0%   { transform: scale(0.1) rotate(14deg); border-radius: 50%; filter: blur(2px); }
+  55%  { transform: scale(1.04) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0.4deg); border-radius: 3px; filter: blur(0); }
+}
+.paper-close { animation: crumple 0.48s cubic-bezier(0.6, -0.2, 0.8, 0.6) both; }
+@keyframes crumple {
+  0%   { transform: scale(1) rotate(0.4deg); }
+  100% { transform: scale(0.06) rotate(-20deg); border-radius: 50%; filter: blur(3px); opacity: 0; }
+}
+
+/* ---------- marble (statues): build up / crumble ---------- */
+.marble {
+  color: #241f18;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 252, 0.7), transparent 45%),
+    linear-gradient(20deg, rgba(150, 140, 120, 0.28), transparent 50%),
+    #e9e1cd;
+  box-shadow: 0 34px 60px -18px rgba(10, 8, 5, 0.7), inset 0 2px 0 rgba(255, 255, 250, 0.7);
+  border: 1px solid rgba(90, 80, 60, 0.25);
+}
+.marble-open { animation: marble-build 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+@keyframes marble-build {
+  0%   { transform: translateY(60vh) rotate(1.5deg); clip-path: inset(0 0 100% 0); }
+  45%  { transform: translateY(4px) rotate(-0.8deg); }
+  60%  { transform: translateY(-3px) rotate(0.5deg); clip-path: inset(0 0 0 0); }
+  75%  { transform: translateY(2px) rotate(-0.3deg); }
+  100% { transform: translateY(0) rotate(0); clip-path: inset(0 0 0 0); }
+}
+.marble-close { animation: marble-crumble 0.6s ease-in both; }
+@keyframes marble-crumble {
+  0%   { transform: none; clip-path: inset(0 0 0 0); }
+  30%  { transform: translateY(6px) rotate(0.6deg); }
+  100% { transform: translateY(30vh) rotate(-3deg); clip-path: inset(0 0 100% 0); opacity: 0; }
+}
+.marble-dust {
+  position: absolute; left: 0; right: 0; bottom: -18px; height: 30px; pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(190, 178, 150, 0.8), transparent 70%);
+  animation: dust-puff 0.9s ease-out both;
+}
+@keyframes dust-puff {
+  from { opacity: 1; transform: scaleX(0.4); }
+  to   { opacity: 0; transform: scaleX(1.6); }
+}
+
+/* ---------- cinema ---------- */
+.cinema {
+  color: #e7e0cf; background: #17140f;
+  border: 1px solid rgba(231, 224, 207, 0.2);
+  box-shadow: 0 34px 70px -18px rgba(0, 0, 0, 0.9);
+  animation: uncrumple 0.4s ease both;
+}
+.cinema-video { width: 100%; margin-top: 10px; background: #000; }
+.cinema-placeholder {
+  margin-top: 14px; padding: 44px 20px; text-align: center;
+  border: 1px dashed rgba(231, 224, 207, 0.3);
+  font-style: italic; opacity: 0.85;
+}
+.cinema-count {
+  width: 84px; height: 84px; margin: 0 auto 18px; border-radius: 50%;
+  border: 2px solid rgba(231, 224, 207, 0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 42px; animation: reel-tick 1s steps(1) infinite;
+}
+@keyframes reel-tick { 50% { opacity: 0.4; } }
+
+/* ---------- the void ---------- */
+.void {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 30px; padding: 24px; text-align: center; overflow: hidden;
+  background: #000;
+  animation: void-appear 1.2s ease both;
+}
+@keyframes void-appear { from { opacity: 0; } }
+.void-zoom {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, #000 60%);
+  animation: void-pull 1.6s cubic-bezier(0.7, 0, 0.9, 0.4) both;
+}
+@keyframes void-pull { from { transform: scale(8); } to { transform: scale(1); } }
+.void-watching {
+  color: #ddd; font-style: italic; font-size: clamp(20px, 3.4vw, 30px); letter-spacing: 0.06em;
+  animation: watch-in 2.2s ease both;
+}
+@keyframes watch-in { from { opacity: 0; letter-spacing: 0.3em; } }
+.void-note { animation: fade-in 1.6s ease both; max-width: 60ch; }
+.void-note p {
+  color: #cfc8b8; font-size: 19px; line-height: 2;
+  font-family: 'Bradley Hand', 'Segoe Script', 'Comic Sans MS', cursive;
+}
+.void-attach {
+  display: inline-block; margin-top: 18px; color: #a89f8a; font-style: italic;
+  text-decoration: underline; text-underline-offset: 4px; font-size: 15px;
+}
+.beyond-btn {
+  display: block; margin: 40px auto 0; padding: 14px 44px;
+  background: transparent; color: #e7e0cf;
+  border: 1px solid rgba(231, 224, 207, 0.6); border-radius: 2px;
+  font-family: Georgia, serif; font-style: italic; font-size: 17px; letter-spacing: 0.14em;
+  cursor: pointer; transition: background 0.4s, color 0.4s, box-shadow 0.4s;
+}
+.beyond-btn:hover, .beyond-btn:focus-visible {
+  background: #e7e0cf; color: #000; outline: none;
+  box-shadow: 0 0 40px rgba(231, 224, 207, 0.35);
+}
+
+/* ---------- the letter ---------- */
+.letter {
+  position: relative; width: min(480px, 92vw);
+  padding: 48px 44px 42px; color: #1b1812; text-align: center;
+  background:
+    linear-gradient(180deg, rgba(120, 100, 70, 0.08) 0 1px, transparent 1px) center / 100% 33.3%,
+    #fdf6e8;
+  box-shadow: 0 30px 60px -20px rgba(10, 8, 5, 0.6);
+  transform-origin: top center;
+  animation: unfold 0.9s cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+@keyframes unfold {
+  0%   { transform: perspective(900px) rotateX(-88deg) scaleY(0.4); opacity: 0; }
+  55%  { transform: perspective(900px) rotateX(14deg) scaleY(1); opacity: 1; }
+  100% { transform: perspective(900px) rotateX(0); }
+}
+.letter h2 {
+  font-family: 'Bradley Hand', 'Segoe Script', 'Comic Sans MS', cursive;
+  font-size: 26px; font-weight: 400; margin-bottom: 14px;
+}
+.letter .popup-body { margin: 0 auto; }
+.letter .popup-link { font-size: 18px; }
+.letter-fold {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent calc(33% - 1px), rgba(90, 75, 50, 0.14) 33%, transparent calc(33% + 1px)),
+    linear-gradient(180deg, transparent calc(66% - 1px), rgba(90, 75, 50, 0.14) 66%, transparent calc(66% + 1px));
+}
+
+/* ---------- calm on small screens & reduced motion ---------- */
+@media (max-width: 640px) {
+  .hud-bottom span:nth-child(2) { display: none; }
+  .sheet { padding: 34px 26px 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01s !important; transition-duration: 0.01s !important; }
+}
