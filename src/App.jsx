@@ -17,7 +17,7 @@ export default function App() {
       >
         {phase === 'room' && <Scene />}
       </Canvas>
-      {phase === 'title' && <Title />}
+      <Title />
       {phase === 'room' && <Hud />}
       {phase === 'room' && <CinemaUI />}
       <Popups />

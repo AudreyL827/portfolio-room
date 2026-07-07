@@ -25,7 +25,7 @@ export const CONTENT = {
 
   // The room's little riddles. Keep them oblique — they are hints, not signs.
   hints: {
-    title: 'they say the projector still remembers her',      // ✏️ FILL ME — tiny hint on the landing page
+    title: 'everything faded except what mattered',           // ✏️ FILL ME — the one line on the landing page
     afterFilm: '…did you hear that? something slipped from the chandelier.',
     afterKey: 'a key. somewhere, a sleeping guard is keeping its lock warm.',
     catAsleep: 'the marble cat sleeps too deeply to be moved. it seems to be waiting for something.',

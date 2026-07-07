@@ -9,7 +9,7 @@ body {
 }
 canvas { display: block; }
 
-/* ---------- title screen ---------- */
+/* ---------- the threshold (title screen) ---------- */
 .title-screen {
   position: fixed; inset: 0; z-index: 30;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -18,42 +18,47 @@ canvas { display: block; }
     radial-gradient(90% 70% at 50% 30%, rgba(255, 250, 234, 0.08), transparent 70%),
     #14110c;
   color: #e7e0cf;
-  animation: title-in 1.4s ease both;
+  cursor: pointer; user-select: none; outline: none;
+  animation: title-in 2.2s ease both;
 }
 @keyframes title-in { from { opacity: 0; } }
-.title-eyebrow {
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; opacity: 0.55;
-}
+.title-screen:focus-visible { box-shadow: inset 0 0 0 1px rgba(231, 224, 207, 0.22); }
+.title-screen:focus-visible .title-guide { opacity: 0.9; }
 .title-screen h1 {
   font-size: clamp(38px, 8vw, 72px); font-weight: 400; letter-spacing: 0.08em;
+  animation: title-rise 2.6s ease both;
 }
-.title-tagline { font-style: italic; font-size: 18px; opacity: 0.7; }
-.enter-btn {
-  margin-top: 26px; padding: 13px 38px;
-  background: transparent; color: #e7e0cf;
-  border: 1px solid rgba(231, 224, 207, 0.5); border-radius: 2px;
-  font-family: inherit; font-size: 15px; font-style: italic; letter-spacing: 0.12em;
-  cursor: pointer; transition: background 0.3s, color 0.3s;
+.title-tagline { font-style: italic; font-size: 18px; opacity: 0.7; animation: title-rise 2.6s 0.3s ease both; }
+@keyframes title-rise { from { opacity: 0; transform: translateY(10px); } to { transform: none; } }
+.title-tagline { opacity: 0.7; }
+.title-guide {
+  margin-top: 44px; font-style: italic; font-size: 15px; letter-spacing: 0.08em;
+  opacity: 0.5;
+  animation: title-rise 2.6s 0.9s ease both, guide-breathe 7s 3.5s ease-in-out infinite;
 }
-.enter-btn:hover, .enter-btn:focus-visible { background: #e7e0cf; color: #14110c; outline: none; }
-.title-hint {
-  margin-top: 20px; font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 11px; letter-spacing: 0.14em; opacity: 0.4;
+@keyframes guide-breathe { 50% { opacity: 0.85; } }
+/* the standing vignette, and the one that closes in as you enter */
+.title-veil {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.8) 100%);
+  opacity: 0.55;
 }
-.title-credit {
-  margin-top: 8px; font-style: italic; font-size: 12px; opacity: 0.35;
+.title-veil-near {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at center, transparent 10%, rgba(0, 0, 0, 0.97) 62%);
 }
-.title-instructions {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 26px;
-  margin-top: 16px;
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.65;
+/* soft transportation: zoom inward, vignette closes, world blurs, fade */
+.title-leaving { animation: title-depart 2.4s cubic-bezier(0.55, 0, 0.75, 0.55) both; cursor: default; }
+@keyframes title-depart {
+  0%   { transform: scale(1); opacity: 1; filter: blur(0); }
+  55%  { transform: scale(1.1); opacity: 1; filter: blur(1.5px); }
+  100% { transform: scale(1.3); opacity: 0; filter: blur(5px); }
 }
-.title-instr-colour { color: #e8b33c; }
-.title-whisper {
-  margin-top: 16px; font-style: italic; font-size: 13px; opacity: 0.3;
-  letter-spacing: 0.06em;
+.title-leaving .title-veil-near { animation: veil-close 1.9s ease-in both; }
+@keyframes veil-close { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .title-leaving { animation: title-depart-still 0.8s ease both; }
+  @keyframes title-depart-still { to { opacity: 0; } }
 }
 
 /* ---------- the cinema ---------- */
