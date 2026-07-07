@@ -1,5 +1,10 @@
 # A Colourless Room
 
+**Deploy**: this is a static Vite site. Push to GitHub, then import the
+repo at [vercel.com/new](https://vercel.com/new) — Vercel auto-detects
+Vite (build `npm run build`, output `dist`) with zero config. Or from
+the terminal: `npx vercel login` once, then `npx vercel --prod`.
+
 An explorable portfolio: you stand inside a beige, old-film cube gallery.
 Arrow keys turn you from corner to corner; the only colour in the room
 belongs to the things that are about you. There is a film, a key, a door
