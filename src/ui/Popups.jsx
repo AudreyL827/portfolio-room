@@ -131,7 +131,7 @@ function VoidPopup() {
               goBeyond()
             }}
           >
-            take me beyond
+            {CONTENT.secretNote.beyondLabel}
           </button>
         </div>
       )}

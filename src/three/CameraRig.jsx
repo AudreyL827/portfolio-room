@@ -12,7 +12,7 @@ import { sfx } from '../audio.js'
 // When the projector runs, the camera leaves your hands: it swings to
 // face the projection screen (wall 2, at +z) and the lens tightens —
 // a slow dolly-zoom into the cinema.
-export const EYE = -6.2
+export const EYE = -5.9
 const SCREEN_YAW = Math.PI          // facing +z
 
 export function CameraRig() {
@@ -45,23 +45,25 @@ export function CameraRig() {
 
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime
-    let targetYaw, targetPitch, targetFov
+    // yaw always damps the short way round (no 360° spins in or out of
+    // the cinema): unwrap the current yaw to within π of the target
+    const shortDamp = (target, lambda) => {
+      const twoPi = Math.PI * 2
+      let cur = camera.rotation.y
+      while (cur - target > Math.PI) cur -= twoPi
+      while (target - cur > Math.PI) cur += twoPi
+      camera.rotation.y = THREE.MathUtils.damp(cur, target, lambda, dt)
+    }
+    let targetPitch, targetFov
     if (cinema) {
       // face the screen (screen centre y=-3.0, wall at z≈7.9)
-      targetYaw = SCREEN_YAW
       targetPitch = Math.atan2(-3.0 - EYE, 7.9)
       targetFov = 30
-      // yaw damp takes the short way round: unwrap current yaw near π
-      const twoPi = Math.PI * 2
-      let cur = camera.rotation.y % twoPi
-      if (cur - targetYaw > Math.PI) cur -= twoPi
-      if (targetYaw - cur > Math.PI) cur += twoPi
-      camera.rotation.y = THREE.MathUtils.damp(cur, targetYaw, 2.2, dt)
+      shortDamp(SCREEN_YAW, 2.2)
     } else {
-      targetYaw = -Math.PI / 4 - corner * Math.PI * 0.5
       targetPitch = view === 'floor' ? -1.15 : view === 'ceiling' ? 1.25 : 0.08
       targetFov = 74
-      camera.rotation.y = THREE.MathUtils.damp(camera.rotation.y, targetYaw - state.pointer.x * 0.05, 3.2, dt)
+      shortDamp(-Math.PI / 4 - corner * Math.PI * 0.5 - state.pointer.x * 0.05, 3.2)
     }
     camera.rotation.x = THREE.MathUtils.damp(
       camera.rotation.x,

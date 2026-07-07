@@ -1,31 +1,96 @@
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useStore } from '../store.js'
 import { useWiggle } from './hooks.js'
 import { sfx } from '../audio.js'
 import { useArtTexture } from '../art.js'
-import { Roughen } from './statues.jsx'
-import { Plaque } from './exhibits.jsx'
 import { Model } from './Model.jsx'
+import { Plaque } from './exhibits.jsx'
 import { H } from './Room.jsx'
 import { ACCENTS } from '../palette.js'
 
-// The easter egg. A small marble cat sleeps on a plinth against the
-// film wall, guarding a patch of wainscot that looks like every other
-// patch of wainscot. After the film, a hint stirs. Click the cat and
-// the whole plinth grinds aside — behind it, a little door that was
-// never on any floor plan. Rendered inside WallGroup j=2 (wall-local).
+// The key that slips from the chandelier when the film ends.
+// Real (tiny) physics: gravity, then damped bounces, each with a clink.
+export function FallingKey() {
+  const group = useRef()
+  const sim = useRef({ y: H - 2.6, vy: 0, rest: false, spin: 2.2 })
+  const { watchedVideo, hasKey, keyLanded, landKey, takeKey } = useStore()
+  const floorY = -H + 0.09
+
+  useFrame((state, dt) => {
+    const g = group.current
+    const s = sim.current
+    if (!g) return
+    const clamped = Math.min(dt, 0.05)
+    if (!s.rest) {
+      s.vy -= 9.8 * clamped
+      s.y += s.vy * clamped
+      g.rotation.x += s.spin * clamped
+      if (s.y <= floorY) {
+        s.y = floorY
+        s.vy = -s.vy * 0.42
+        s.spin *= 0.5
+        sfx.clink()
+        if (Math.abs(s.vy) < 0.8) {
+          s.rest = true
+          g.rotation.x = Math.PI / 2
+          landKey()
+        }
+      }
+    } else {
+      // glow pulse so it can be found
+      const p = 0.5 + Math.sin(state.clock.elapsedTime * 2.4) * 0.5
+      g.children.forEach((c) => c.material && (c.material.emissiveIntensity = 0.3 + p * 0.6))
+    }
+    g.position.y = s.y
+  })
+
+  const handlers = useWiggle(group, {
+    onClick: () => {
+      if (sim.current.rest) takeKey()
+    },
+    axis: 'y',
+  })
+
+  if (!watchedVideo || hasKey) return null
+  const mat = { color: ACCENTS.gold, emissive: ACCENTS.gold, emissiveIntensity: 0.5, roughness: 0.35, metalness: 0.4 }
+  return (
+    <group ref={group} position={[1.6, H - 2.6, 1.6]} {...(keyLanded ? handlers : {})}>
+      <mesh castShadow>
+        <torusGeometry args={[0.14, 0.045, 8, 18]} />
+        <meshStandardMaterial {...mat} />
+      </mesh>
+      <mesh position={[0, -0.3, 0]} castShadow>
+        <cylinderGeometry args={[0.035, 0.035, 0.42, 6]} />
+        <meshStandardMaterial {...mat} />
+      </mesh>
+      <mesh position={[0.08, -0.44, 0]}>
+        <boxGeometry args={[0.14, 0.05, 0.05]} />
+        <meshStandardMaterial {...mat} />
+      </mesh>
+      <mesh position={[0.06, -0.34, 0]}>
+        <boxGeometry args={[0.1, 0.05, 0.05]} />
+        <meshStandardMaterial {...mat} />
+      </mesh>
+    </group>
+  )
+}
+
+// The easter egg. A marble cat sleeps on a plinth against the film wall,
+// guarding a patch of wainscot. The film wakes the key; the key wakes
+// the cat. Click it and the plinth grinds aside — behind it, a little
+// door that was never on any floor plan. Wall-local to WallGroup j=2.
 export function CatSecret({ P }) {
   const slider = useRef()
   const zone = useRef()
   const seam = useRef()
-  const { watchedVideo, catMoved, moveCat, openPopup } = useStore()
+  const { hasKey, catMoved, moveCat, openPopup } = useStore()
   const [sliding, setSliding] = useState(false)
 
   const handlers = useWiggle(zone, {
     onClick: () => {
-      if (!catMoved && watchedVideo) {
+      if (!catMoved && hasKey) {
         setSliding(true)
         sfx.marble(false) // stone grinding aside
       }
@@ -65,121 +130,127 @@ export function CatSecret({ P }) {
             <boxGeometry args={[1.15, 1.8, 0.07]} />
             <meshStandardMaterial color={P.door} roughness={0.7} />
           </mesh>
-          {/* the handle — mounted upside down, the one wrong thing */}
+          {/* the keyhole and handle — mounted upside down, the one wrong thing */}
           <mesh position={[0.42, 0.55, 0.06]} rotation-x={Math.PI / 2}>
             <torusGeometry args={[0.09, 0.025, 8, 18]} />
             <meshStandardMaterial color={ACCENTS.gold} emissive={ACCENTS.gold} emissiveIntensity={0.5} metalness={0.5} roughness={0.3} />
           </mesh>
+          <mesh position={[0.42, 0.82, 0.045]}>
+            <circleGeometry args={[0.035, 10]} />
+            <meshStandardMaterial color="#171310" />
+          </mesh>
         </group>
       )}
-      {/* the sliding plinth + cat */}
+      {/* the sliding plinth + the sleeping marble cat */}
       <group ref={slider}>
         <group ref={zone} {...handlers}>
           <mesh position={[0, 0.3, -H + 1.0]} castShadow receiveShadow>
-            <boxGeometry args={[1.2, 0.6, 1.2]} />
+            <boxGeometry args={[1.3, 0.6, 1.3]} />
             <meshStandardMaterial color={P.pedestal} roughness={0.85} />
           </mesh>
           <mesh position={[0, 0.63, -H + 1.0]} castShadow>
-            <boxGeometry args={[1.34, 0.08, 1.34]} />
+            <boxGeometry args={[1.44, 0.08, 1.44]} />
             <meshStandardMaterial color={P.trim} roughness={0.8} />
           </mesh>
-          <group position={[0, 0.67, -H + 1.0]} rotation-y={0.4}>
+          <group position={[0, 0.67, -H + 1.0]} rotation-y={0.5}>
             <Suspense fallback={null}>
               <Model
-                url={`${import.meta.env.BASE_URL}models/artdeco-cat.glb`}
-                height={0.95}
-                preRotate={[0, 0, 0]}
+                url={`${import.meta.env.BASE_URL}models/sleeping-cat.glb`}
+                height={0.5}
                 anchor="floor"
                 marble={P.statue}
               />
             </Suspense>
           </group>
         </group>
-        <Plaque id="catstatue" position={[0, 0.34, -H + 1.62]} />
+        <Plaque id="catstatue" position={[0, 0.34, -H + 1.74]} />
       </group>
     </group>
   )
 }
 
 // After "take me beyond": on the about wall, Le Chat Noir hangs where
-// nothing hung before — and below it a real cat sleeps with one
-// envelope tucked under its paw. Rendered inside WallGroup j=1.
+// nothing hung before — and below it the cat sleeps for real, one
+// envelope tucked by its paw. Clicking the cat or the mail wakes a meow
+// and unfolds the letter; nothing here swings or slides.
 export function CatAndMail({ P }) {
-  const cat = useRef()
-  const zone = useRef()
-  const openPopup = useStore((s) => s.openPopup)
-  // the cat guards the mail: clicking any of it opens the letter
-  const handlers = useWiggle(zone, { onClick: () => openPopup('letter', 'thankyou'), axis: 'z' })
   const tex = useArtTexture('chatnoir', { mode: P.name === 'beyond' ? 'beyond' : 'beige' })
+  const openPopup = useStore((s) => s.openPopup)
 
-  useFrame((state) => {
-    // the cat breathes
-    if (cat.current) {
-      const b = 1 + Math.sin(state.clock.elapsedTime * 1.1) * 0.02
-      cat.current.scale.set(1, b, 1)
-    }
-  })
+  // imperative material: swapping `map` on a compiled material needs
+  // an explicit needsUpdate (same trick as Artwork)
+  const mat = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: P.canvas, roughness: 0.9 }),
+    [P]
+  )
+  useEffect(() => {
+    if (!tex) return
+    mat.map = tex
+    mat.color.set('#ffffff')
+    mat.needsUpdate = true
+  }, [tex, mat])
+
+  const wake = (e) => {
+    e.stopPropagation()
+    sfx.meow()
+    openPopup('letter', 'thankyou')
+  }
+  const over = (e) => {
+    e.stopPropagation()
+    document.body.style.cursor = 'pointer'
+    sfx.tick()
+  }
+  const out = () => { document.body.style.cursor = 'auto' }
 
   return (
     <group position={[0.85, 0, 0]}>
-      <group ref={zone} {...handlers}>
-        {/* a normal painting, hung like nothing happened */}
-        <group position={[0, -4.3, -H + 0.1]}>
-          <mesh castShadow>
-            <boxGeometry args={[1.6, 2.06, 0.09]} />
-            <meshStandardMaterial color={P.frame} roughness={0.55} />
-          </mesh>
-          <mesh position={[0, 0, 0.052]}>
-            <planeGeometry args={[1.4, 1.86]} />
-            {tex ? (
-              <meshStandardMaterial map={tex} roughness={0.9} />
-            ) : (
-              <meshStandardMaterial color={P.canvas} roughness={0.9} />
-            )}
-          </mesh>
-        </group>
-        {/* the sleeping cat below it */}
-        <group ref={cat} position={[0, -H + 0.32, -H + 1.0]}>
-          <Roughen amt={0.02} seed={31}>
-            <mesh castShadow>
-              <sphereGeometry args={[0.34, 14, 10]} />
-              <meshStandardMaterial color="#6b5d68" roughness={0.95} flatShading />
-            </mesh>
-            <mesh position={[0.3, 0.05, 0.05]} castShadow>
-              <sphereGeometry args={[0.2, 12, 9]} />
-              <meshStandardMaterial color="#6b5d68" roughness={0.95} flatShading />
-            </mesh>
-            {[-0.07, 0.07].map((x, i) => (
-              <mesh key={i} position={[0.34 + x, 0.22, 0.05]} rotation-z={x * 3}>
-                <coneGeometry args={[0.05, 0.1, 4]} />
-                <meshStandardMaterial color="#5c4f59" roughness={0.95} flatShading />
-              </mesh>
-            ))}
-            <mesh position={[-0.2, -0.1, 0.2]} rotation-x={Math.PI / 2} rotation-z={0.6}>
-              <torusGeometry args={[0.22, 0.05, 8, 16, Math.PI * 1.3]} />
-              <meshStandardMaterial color="#5c4f59" roughness={0.95} flatShading />
-            </mesh>
-            <mesh position={[0.32, -0.08, 0.28]} castShadow>
-              <sphereGeometry args={[0.08, 8, 6]} />
-              <meshStandardMaterial color="#75656f" roughness={0.95} flatShading />
-            </mesh>
-          </Roughen>
-        </group>
-        {/* the envelope, slightly tucked under the paw */}
-        <group position={[0.42, -H + 0.045, -H + 1.32]} rotation-y={-0.4}>
-          <mesh castShadow>
-            <boxGeometry args={[0.55, 0.02, 0.4]} />
-            <meshStandardMaterial color="#fdf6e8" roughness={0.8} />
-          </mesh>
-          <mesh position={[0, 0.012, 0]} rotation-x={-Math.PI / 2}>
-            <planeGeometry args={[0.5, 0.35]} />
-            <meshStandardMaterial color="#f3e9d2" roughness={0.9} />
-          </mesh>
-          <mesh position={[0.12, 0.015, 0.05]} rotation-x={-Math.PI / 2}>
-            <circleGeometry args={[0.06, 10]} />
-            <meshStandardMaterial color={ACCENTS.red} emissive={ACCENTS.red} emissiveIntensity={0.3} />
-          </mesh>
-        </group>
+      {/* a normal painting, hung like nothing happened — not clickable */}
+      <group position={[0, -4.3, -H + 0.1]}>
+        <mesh castShadow>
+          <boxGeometry args={[1.6, 2.06, 0.09]} />
+          <meshStandardMaterial color={P.frame} roughness={0.55} />
+        </mesh>
+        <mesh position={[0, 0, 0.052]} material={mat}>
+          <planeGeometry args={[1.4, 1.86]} />
+        </mesh>
+      </group>
+      {/* the sleeping cat, real fur this time */}
+      <group
+        position={[0, -H + 0.02, -H + 1.0]}
+        rotation-y={0.4}
+        onClick={wake}
+        onPointerOver={over}
+        onPointerOut={out}
+      >
+        <Suspense fallback={null}>
+          <Model
+            url={`${import.meta.env.BASE_URL}models/sleeping-cat.glb`}
+            height={0.45}
+            anchor="floor"
+            mode="beyond"
+          />
+        </Suspense>
+      </group>
+      {/* the envelope, slightly tucked toward the paw */}
+      <group
+        position={[0.55, -H + 0.045, -H + 1.35]}
+        rotation-y={-0.4}
+        onClick={wake}
+        onPointerOver={over}
+        onPointerOut={out}
+      >
+        <mesh castShadow>
+          <boxGeometry args={[0.55, 0.02, 0.4]} />
+          <meshStandardMaterial color="#fdf6e8" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 0.012, 0]} rotation-x={-Math.PI / 2}>
+          <planeGeometry args={[0.5, 0.35]} />
+          <meshStandardMaterial color="#f3e9d2" roughness={0.9} />
+        </mesh>
+        <mesh position={[0.12, 0.015, 0.05]} rotation-x={-Math.PI / 2}>
+          <circleGeometry args={[0.06, 10]} />
+          <meshStandardMaterial color={ACCENTS.red} emissive={ACCENTS.red} emissiveIntensity={0.3} />
+        </mesh>
       </group>
     </group>
   )

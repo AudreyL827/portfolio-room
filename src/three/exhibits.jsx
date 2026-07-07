@@ -61,8 +61,10 @@ export function Artwork({ id, art, icon, pos = [0, 0], w = 2, seed = 7, P, plaqu
     mat.color.set('#ffffff')
     mat.needsUpdate = true
   }, [tex, mat, bump])
+  // tiny per-painting depth stagger so neighbouring frames never z-clip
+  const zStagger = ((String(art).split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 5) - 2) * 0.008
   return (
-    <group position={[pos[0], pos[1], -H + 0.1]}>
+    <group position={[pos[0], pos[1], -H + 0.1 + zStagger]}>
       <group ref={ref}>
         <mesh castShadow>
           <boxGeometry args={[w + 0.3, h + 0.3, 0.12]} />
@@ -107,41 +109,110 @@ export function GlbPainting({ url, pos = [0, 0], height = 1.8, preRotate = [0, 0
   )
 }
 
-// The record player: beige console, black record, coloured label —
-// the record actually spins, slightly off-centre, like it was
-// coloured by hand and mounted in a hurry.
+// An antique gramophone: dark wood cabinet with panel mouldings, a
+// brass horn, a crank — and the record on a tilted deck so you can see
+// it turn. The coloured label is the clickable part; the disc spins
+// faster while the music popup is open.
 export function VinylPlayer({ pos = [0, 0], accent = '#e07b2f', P }) {
   const ref = useRef()
   const disc = useRef()
   const openPopup = useStore((s) => s.openPopup)
+  const playing = useStore((s) => s.popup?.id === 'spotify')
   const handlers = useWiggle(ref, { onClick: () => openPopup('paper', 'spotify'), axis: 'y' })
-  useFrame((_, dt) => {
-    if (disc.current) disc.current.rotation.y += dt * 1.6
+  useFrame((state, dt) => {
+    if (disc.current) {
+      disc.current.rotation.y += dt * (playing ? 4.2 : 1.8)
+      disc.current.rotation.z = Math.sin(state.clock.elapsedTime * 6) * 0.004
+    }
   })
+  const wood = <meshStandardMaterial color="#3d2b1c" roughness={0.55} />
+  const brass = <meshStandardMaterial color="#a8853e" metalness={0.75} roughness={0.32} />
   return (
     <group position={[pos[0], -H, pos[1] - H + 1.6]}>
       <group ref={ref} {...handlers}>
-        <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
-          <boxGeometry args={[1.7, 1.1, 1.0]} />
-          <meshStandardMaterial color={P.pedestal} roughness={0.85} />
+        {/* wooden cabinet with inset panels and little feet */}
+        <mesh position={[0, 0.62, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.5, 1.08, 0.95]} />
+          {wood}
         </mesh>
-        <mesh position={[0, 1.14, 0]} castShadow>
-          <boxGeometry args={[1.8, 0.08, 1.1]} />
-          <meshStandardMaterial color={P.bench} roughness={0.6} />
+        <mesh position={[0, 0.5, 0.48]}>
+          <boxGeometry args={[1.2, 0.6, 0.02]} />
+          <meshStandardMaterial color="#4d3826" roughness={0.6} />
         </mesh>
-        <group ref={disc} position={[-0.18, 1.22, 0]}>
+        {[-0.62, 0.62].map((x) =>
+          [-0.38, 0.38].map((z) => (
+            <mesh key={x + ':' + z} position={[x, 0.05, z]} castShadow>
+              <cylinderGeometry args={[0.05, 0.07, 0.12, 8]} />
+              {wood}
+            </mesh>
+          ))
+        )}
+        <mesh position={[0, 1.18, 0]} castShadow>
+          <boxGeometry args={[1.6, 0.07, 1.05]} />
+          {wood}
+        </mesh>
+        {/* deck, tilted toward the room so the record face is visible */}
+        <group position={[0, 1.26, 0.1]} rotation-x={0.3}>
           <mesh castShadow>
-            <cylinderGeometry args={[0.52, 0.52, 0.035, 36]} />
-            <meshStandardMaterial color="#211d18" roughness={0.35} />
+            <boxGeometry args={[1.3, 0.07, 0.85]} />
+            {wood}
           </mesh>
-          <mesh position={[0.035, 0.023, 0.02]}>
-            <cylinderGeometry args={[0.2, 0.2, 0.012, 24]} />
-            <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.4} roughness={0.5} />
+          <mesh position={[-0.12, 0.06, 0]}>
+            <cylinderGeometry args={[0.45, 0.47, 0.05, 36]} />
+            <meshStandardMaterial color="#241f19" roughness={0.5} />
+          </mesh>
+          {/* the record — off-centre label, index line, visible spin */}
+          <group ref={disc} position={[-0.12, 0.1, 0]}>
+            <mesh castShadow>
+              <cylinderGeometry args={[0.42, 0.42, 0.016, 40]} />
+              <meshStandardMaterial color="#17130f" roughness={0.3} />
+            </mesh>
+            <mesh position={[0.03, 0.01, 0.015]}>
+              <cylinderGeometry args={[0.16, 0.16, 0.008, 24]} />
+              <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.4} roughness={0.5} />
+            </mesh>
+            <mesh position={[0.28, 0.01, 0]}>
+              <boxGeometry args={[0.12, 0.004, 0.02]} />
+              <meshStandardMaterial color="#d8cfc0" roughness={0.6} />
+            </mesh>
+            <mesh position={[0, 0.02, 0]}>
+              <cylinderGeometry args={[0.012, 0.012, 0.05, 8]} />
+              {brass}
+            </mesh>
+          </group>
+          {/* tonearm */}
+          <mesh position={[0.5, 0.1, -0.26]} castShadow>
+            <cylinderGeometry args={[0.035, 0.045, 0.1, 10]} />
+            {brass}
+          </mesh>
+          <mesh position={[0.32, 0.14, -0.1]} rotation-z={0.24} rotation-y={0.7} castShadow>
+            <cylinderGeometry args={[0.013, 0.013, 0.5, 6]} />
+            {brass}
           </mesh>
         </group>
-        <mesh position={[0.5, 1.3, -0.18]} rotation-z={0.5} rotation-y={0.4} castShadow>
-          <cylinderGeometry args={[0.02, 0.02, 0.75, 6]} />
-          <meshStandardMaterial color={P.bench} roughness={0.5} />
+        {/* the brass horn, blooming up and back */}
+        <group position={[0.42, 1.5, -0.32]} rotation-x={-0.5} rotation-z={-0.15}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.035, 0.05, 0.35, 12]} />
+            {brass}
+          </mesh>
+          <mesh position={[0, 0.36, 0]} castShadow>
+            <cylinderGeometry args={[0.3, 0.05, 0.5, 18, 1, true]} />
+            <meshStandardMaterial color="#a8853e" metalness={0.75} roughness={0.32} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh position={[0, 0.62, 0]} rotation-x={Math.PI / 2}>
+            <torusGeometry args={[0.3, 0.02, 8, 24]} />
+            {brass}
+          </mesh>
+        </group>
+        {/* crank */}
+        <mesh position={[0.78, 0.7, 0]} rotation-z={Math.PI / 2} castShadow>
+          <cylinderGeometry args={[0.015, 0.015, 0.14, 6]} />
+          {brass}
+        </mesh>
+        <mesh position={[0.86, 0.62, 0]} castShadow>
+          <cylinderGeometry args={[0.02, 0.02, 0.16, 6]} />
+          {wood}
         </mesh>
       </group>
       <group position={[0, 0.5, 0.78]} rotation-x={-0.45}>

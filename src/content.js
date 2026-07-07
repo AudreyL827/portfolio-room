@@ -26,8 +26,9 @@ export const CONTENT = {
   // The room's little riddles. Keep them oblique — they are hints, not signs.
   hints: {
     title: 'they say the projector still remembers her',      // ✏️ FILL ME — tiny hint on the landing page
-    afterFilm: 'somewhere behind you, a marble cat twitched in its sleep.',
-    catAsleep: 'the marble cat sleeps too deeply to be moved. something on film might stir it.',
+    afterFilm: '…did you hear that? something slipped from the chandelier.',
+    afterKey: 'a key. somewhere, a sleeping guard is keeping its lock warm.',
+    catAsleep: 'the marble cat sleeps too deeply to be moved. it seems to be waiting for something.',
     doorFound: 'so that is what the cat was keeping warm.',
   },
 
@@ -111,6 +112,7 @@ export const CONTENT = {
       'Write it like a letter to whoever was curious enough to find it.',
     ],
     planningLabel: 'the planning process, attached',
+    beyondLabel: 'open your eyes',
   },
 
   // The thank-you letter under the cat's paw (after "take me beyond").

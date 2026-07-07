@@ -26,6 +26,8 @@ export const useStore = create((set, get) => ({
   muted: false,
   cinema: false,           // camera locked onto the projection screen
   watchedVideo: false,
+  keyLanded: false,        // the key has finished bouncing
+  hasKey: false,           // …and is in your pocket
   catMoved: false,         // the marble cat has slid aside
   beyond: wentBeyond,      // true = the bright world
   justAwoke: false,        // plays the eyes-reopening transition once
@@ -52,10 +54,16 @@ export const useStore = create((set, get) => ({
     set({ watchedVideo: true })
     setTimeout(() => get().say(CONTENT.hints.afterFilm, 7000), 1400)
   },
+  landKey: () => set({ keyLanded: true }),
+  takeKey: () => {
+    if (get().hasKey) return
+    set({ hasKey: true })
+    get().say(CONTENT.hints.afterKey, 6500)
+  },
   moveCat: () => {
     const s = get()
     if (s.catMoved) return
-    if (!s.watchedVideo) {
+    if (!s.hasKey) {
       s.say(CONTENT.hints.catAsleep)
       return
     }
@@ -70,6 +78,8 @@ export const useStore = create((set, get) => ({
       popup: null,
       cinema: false,
       watchedVideo: false,
+      keyLanded: false,
+      hasKey: false,
       catMoved: false,
       view: 'walls',
     })

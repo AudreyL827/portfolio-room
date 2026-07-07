@@ -280,6 +280,37 @@ class Sfx {
     })
   }
 
+  // A small, sleepy meow — pitch rises then falls, with a little vibrato.
+  meow() {
+    if (!this.ctx) return
+    const t = this.ctx.currentTime
+    const o = this.ctx.createOscillator()
+    o.type = 'sawtooth'
+    o.frequency.setValueAtTime(420, t)
+    o.frequency.exponentialRampToValueAtTime(780, t + 0.16)
+    o.frequency.exponentialRampToValueAtTime(340, t + 0.55)
+    const vib = this.ctx.createOscillator()
+    vib.frequency.value = 24
+    const vibGain = this.ctx.createGain()
+    vibGain.gain.value = 26
+    vib.connect(vibGain).connect(o.frequency)
+    const bp = this.ctx.createBiquadFilter()
+    bp.type = 'bandpass'
+    bp.Q.value = 1.6
+    bp.frequency.setValueAtTime(900, t)
+    bp.frequency.exponentialRampToValueAtTime(1500, t + 0.16)
+    bp.frequency.exponentialRampToValueAtTime(700, t + 0.55)
+    const g = this.ctx.createGain()
+    g.gain.setValueAtTime(0.0001, t)
+    g.gain.exponentialRampToValueAtTime(0.14, t + 0.07)
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6)
+    o.connect(bp).connect(g).connect(this.master)
+    o.start(t)
+    vib.start(t)
+    o.stop(t + 0.65)
+    vib.stop(t + 0.65)
+  }
+
   // Paper unfolding (the thank-you letter).
   unfold() {
     if (!this.ctx) return
