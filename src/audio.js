@@ -280,35 +280,62 @@ class Sfx {
     })
   }
 
-  // A small, sleepy meow — pitch rises then falls, with a little vibrato.
+  // A sleepy meow. A cat's voice is a low buzzy source shaped by two
+  // vowel formants gliding "m-iaa-oo": fundamental rises then settles,
+  // the first formant opens and closes, breath noise underneath.
   meow() {
     if (!this.ctx) return
     const t = this.ctx.currentTime
+    const dur = 0.85
+    // source: low sawtooth with slow vibrato
     const o = this.ctx.createOscillator()
     o.type = 'sawtooth'
-    o.frequency.setValueAtTime(420, t)
-    o.frequency.exponentialRampToValueAtTime(780, t + 0.16)
-    o.frequency.exponentialRampToValueAtTime(340, t + 0.55)
+    o.frequency.setValueAtTime(150, t)
+    o.frequency.exponentialRampToValueAtTime(330, t + 0.22)
+    o.frequency.setValueAtTime(330, t + 0.4)
+    o.frequency.exponentialRampToValueAtTime(170, t + dur)
     const vib = this.ctx.createOscillator()
-    vib.frequency.value = 24
+    vib.frequency.value = 9
     const vibGain = this.ctx.createGain()
-    vibGain.gain.value = 26
+    vibGain.gain.value = 10
     vib.connect(vibGain).connect(o.frequency)
-    const bp = this.ctx.createBiquadFilter()
-    bp.type = 'bandpass'
-    bp.Q.value = 1.6
-    bp.frequency.setValueAtTime(900, t)
-    bp.frequency.exponentialRampToValueAtTime(1500, t + 0.16)
-    bp.frequency.exponentialRampToValueAtTime(700, t + 0.55)
-    const g = this.ctx.createGain()
-    g.gain.setValueAtTime(0.0001, t)
-    g.gain.exponentialRampToValueAtTime(0.14, t + 0.07)
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6)
-    o.connect(bp).connect(g).connect(this.master)
+    // formant 1: "m → iaa → oo" (closed → open → closed mouth)
+    const f1 = this.ctx.createBiquadFilter()
+    f1.type = 'bandpass'
+    f1.Q.value = 3.5
+    f1.frequency.setValueAtTime(450, t)
+    f1.frequency.exponentialRampToValueAtTime(1250, t + 0.25)
+    f1.frequency.setValueAtTime(1250, t + 0.42)
+    f1.frequency.exponentialRampToValueAtTime(500, t + dur)
+    // formant 2, fainter and higher
+    const f2 = this.ctx.createBiquadFilter()
+    f2.type = 'bandpass'
+    f2.Q.value = 5
+    f2.frequency.setValueAtTime(2400, t)
+    f2.frequency.exponentialRampToValueAtTime(3100, t + 0.25)
+    f2.frequency.exponentialRampToValueAtTime(2100, t + dur)
+    const g1 = this.ctx.createGain()
+    const g2 = this.ctx.createGain()
+    for (const [g, peak] of [[g1, 0.22], [g2, 0.06]]) {
+      g.gain.setValueAtTime(0.0001, t)
+      g.gain.exponentialRampToValueAtTime(peak, t + 0.12)
+      g.gain.setValueAtTime(peak, t + 0.45)
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+    }
+    o.connect(f1).connect(g1).connect(this.master)
+    o.connect(f2).connect(g2).connect(this.master)
+    // a little breath
+    const n = this._noise(dur)
+    const nf = this.ctx.createBiquadFilter()
+    nf.type = 'bandpass'
+    nf.Q.value = 1
+    nf.frequency.value = 1600
+    n.connect(nf).connect(this._env(0.02, 0.15, dur - 0.2))
+    n.start(t)
     o.start(t)
     vib.start(t)
-    o.stop(t + 0.65)
-    vib.stop(t + 0.65)
+    o.stop(t + dur + 0.05)
+    vib.stop(t + dur + 0.05)
   }
 
   // Paper unfolding (the thank-you letter).

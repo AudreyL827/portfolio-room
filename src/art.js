@@ -57,7 +57,10 @@ function makeTexture(img, { mode, icon, seed = 7 }) {
     ctx.fillStyle = 'rgba(226, 214, 184, 0.14)'
     ctx.fillRect(0, 0, W, H)
   }
-  if (icon) {
+  // The coloured icon exists only in the colourless world. When colour
+  // returns, the bright things dissolve back into the whole — you
+  // mistook them for the whole world, after all.
+  if (icon && mode === 'beige') {
     const px = (icon.fs / 100) * Math.min(W, H)
     const s = px / 100
     ctx.save()

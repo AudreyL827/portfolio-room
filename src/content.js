@@ -104,8 +104,8 @@ export const CONTENT = {
   // The void behind the hidden door.
   secretNote: {
     // ✏️ FILL ME — the quote that breaks the fourth wall. Swap for any line you love.
-    watching: '“Reality is created by the mind. We can change our reality by changing our mind.”',
-    watchingBy: '— attributed to Plato',
+    watching: '“You mistook the brightest things for the whole world.”',
+    watchingBy: '— the room',
     lines: [
       'FILL ME — this is your handwritten note.',
       'Your views, your philosophy, why you built this room.',
@@ -121,18 +121,18 @@ export const CONTENT = {
     body: 'FILL ME — a warm closing note to the visitor who finished the whole story.',
   },
 
-  // Museum wall labels for YOUR pieces (the coloured ones). Decorative
-  // paintings get their real title/artist automatically from the catalog.
+  // Museum wall labels. They read like real gallery labels — the
+  // painting's own name — while your popups live behind the colour.
   plaques: {
-    'work-1': ['Project One', 'after van Gogh · FILL ME'],
-    'work-2': ['Project Two', 'after Hokusai · FILL ME'],
-    'work-3': ['Project Three', 'after Munch · FILL ME'],
-    'food': ['The Apple', 'after Cézanne · always hungry'],
-    'fencing': ['En Garde', 'marble & one coloured sword'],
-    'portrait': ['Self Portrait, Unfinished', 'after da Vinci · the artist'],
-    'contact': ['Correspondence', 'after Vermeer · write to me'],
-    'spotify': ['Now Spinning', 'vinyl, coloured'],
-    'reel': ['A Moving Picture', 'about the artist — press play'],
+    'work-1': ['The Starry Night', 'van Gogh, 1889'],
+    'work-2': ['The Great Wave off Kanagawa', 'Hokusai, c. 1831'],
+    'work-3': ['The Scream', 'Munch, 1893'],
+    'food': ['The Basket of Apples', 'Cézanne, c. 1893'],
+    'fencing': ['En Garde', 'the sword is real'],
+    'portrait': ['Mona Lisa', 'da Vinci, c. 1506'],
+    'contact': ['Girl Reading a Letter', 'Vermeer, c. 1657'],
+    'spotify': ['Now Spinning', 'gramophone, brass & wood'],
+    'reel': ['A Moving Picture', 'press play'],
     'catstatue': ['Gallery Cat', 'marble · do not disturb'],
   },
 }

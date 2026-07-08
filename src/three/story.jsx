@@ -214,7 +214,9 @@ export function CatAndMail({ P }) {
           <planeGeometry args={[1.4, 1.86]} />
         </mesh>
       </group>
-      {/* the sleeping cat, real fur this time */}
+      {/* the sleeping cat, awake to colour: soft warm-grey matte — its
+          baked edge-line texture reads noisy under gallery light, so it
+          wears the room's sculptural finish instead */}
       <group
         position={[0, -H + 0.02, -H + 1.0]}
         rotation-y={0.4}
@@ -227,7 +229,7 @@ export function CatAndMail({ P }) {
             url={`${import.meta.env.BASE_URL}models/sleeping-cat.glb`}
             height={0.45}
             anchor="floor"
-            mode="beyond"
+            marble="#958b91"
           />
         </Suspense>
       </group>

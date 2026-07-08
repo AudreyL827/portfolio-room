@@ -1,25 +1,40 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { CONTENT } from '../content.js'
 import { useStore } from '../store.js'
 import { sfx } from '../audio.js'
 
 // The threshold. No button, no chrome — a name, a room, one line.
-// The whole screen is the way in (so are Enter and Space). Beginning
-// doesn't click; it transports: a slow zoom inward while the vignette
-// closes and the world blurs, then the gallery is simply there.
+// The whole screen is the way in (so are Enter and Space).
+//
+// Leaving happens in two acts so it stays silky: first the letters
+// drift apart and dissolve while the vignette closes to black — the
+// room does NOT load yet, so nothing stutters. Only once the screen is
+// dark does the gallery mount behind it; then the black lifts as the
+// camera eases forward, like stepping through.
 export function Title() {
   const phase = useStore((s) => s.phase)
   const enter = useStore((s) => s.enter)
   const beyond = useStore((s) => s.beyond)
-  const [leaving, setLeaving] = useState(false)
+  const [act, setAct] = useState(0) // 0 waiting · 1 dissolving · 2 black lifting
+  const timers = useRef([])
 
   const begin = useCallback(() => {
-    if (leaving) return
-    sfx.init()
-    sfx.whoosh()
-    setLeaving(true)
-    enter() // the room starts waking behind the veil
-  }, [leaving, enter])
+    setAct((current) => {
+      if (current !== 0) return current
+      sfx.init()
+      sfx.whoosh()
+      timers.current.push(
+        setTimeout(() => {
+          enter() // mount the room behind the black
+          setAct(2)
+        }, 1900),
+        setTimeout(() => setAct(0), 3600)
+      )
+      return 1
+    })
+  }, [enter])
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
   useEffect(() => {
     if (phase !== 'title') return
@@ -33,10 +48,10 @@ export function Title() {
     return () => window.removeEventListener('keydown', onKey)
   }, [phase, begin])
 
-  if (phase === 'room' && !leaving) return null
+  if (phase === 'room' && act === 0) return null
   return (
     <div
-      className={'title-screen' + (leaving ? ' title-leaving' : '')}
+      className={'title-screen' + (act === 1 ? ' title-act1' : '') + (act === 2 ? ' title-act2' : '')}
       role="button"
       tabIndex={0}
       aria-label="enter the room"
@@ -45,11 +60,6 @@ export function Title() {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           begin()
-        }
-      }}
-      onAnimationEnd={(e) => {
-        if (e.animationName === 'title-depart' || e.animationName === 'title-depart-still') {
-          setLeaving(false)
         }
       }}
     >

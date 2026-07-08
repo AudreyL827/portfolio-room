@@ -73,10 +73,14 @@ export function Model({
         o.material = new THREE.MeshStandardMaterial({ color: marble, flatShading: true, roughness: 0.55 })
       } else {
         o.material = o.material.clone()
+        // scans often ship with glTF's default metallic=1 → dark, shiny
+        // facets under gallery light; force a matte museum finish
+        o.material.metalness = 0
+        o.material.roughness = Math.max(o.material.roughness ?? 1, 0.85)
         if (mode === 'beige' && o.material.map) {
           o.material.map = toSepia(o.material.map, url + '|' + (o.material.map.uuid ?? o.name))
-          o.material.needsUpdate = true
         }
+        o.material.needsUpdate = true
       }
     })
     const outer = new THREE.Group()

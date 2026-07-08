@@ -22,6 +22,10 @@ export function CameraRig() {
 
   useEffect(() => {
     camera.rotation.order = 'YXZ'
+    // arrive wide, then ease to the resting lens — the first seconds
+    // feel like stepping forward into the room
+    camera.fov = 96
+    camera.updateProjectionMatrix()
   }, [camera])
 
   useEffect(() => {

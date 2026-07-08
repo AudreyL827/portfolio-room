@@ -47,18 +47,30 @@ canvas { display: block; }
   position: absolute; inset: 0; pointer-events: none; opacity: 0;
   background: radial-gradient(ellipse at center, transparent 10%, rgba(0, 0, 0, 0.97) 62%);
 }
-/* soft transportation: zoom inward, vignette closes, world blurs, fade */
-.title-leaving { animation: title-depart 2.4s cubic-bezier(0.55, 0, 0.75, 0.55) both; cursor: default; }
-@keyframes title-depart {
-  0%   { transform: scale(1); opacity: 1; filter: blur(0); }
-  55%  { transform: scale(1.1); opacity: 1; filter: blur(1.5px); }
-  100% { transform: scale(1.3); opacity: 0; filter: blur(5px); }
+/* ---- soft transportation, act I: the letters dissolve -------------- */
+/* nothing loads during this act, so it stays perfectly smooth */
+.title-act1 { cursor: default; }
+.title-act1 h1 { animation: letters-dissolve 1.9s cubic-bezier(0.5, 0, 0.7, 0.5) both; }
+.title-act1 .title-tagline { animation: letters-dissolve 1.7s 0.12s cubic-bezier(0.5, 0, 0.7, 0.5) both; }
+.title-act1 .title-guide { animation: letters-dissolve 1.5s 0.24s cubic-bezier(0.5, 0, 0.7, 0.5) both; }
+@keyframes letters-dissolve {
+  0%   { opacity: 1; letter-spacing: 0.08em; filter: blur(0); transform: none; }
+  100% { opacity: 0; letter-spacing: 0.55em; filter: blur(10px); transform: scale(1.06); }
 }
-.title-leaving .title-veil-near { animation: veil-close 1.9s ease-in both; }
+.title-act1 .title-veil-near { animation: veil-close 1.9s ease-in both; }
 @keyframes veil-close { to { opacity: 1; } }
+
+/* ---- act II: the black lifts, and you drift forward into the room -- */
+.title-act2 { cursor: default; background: #000; pointer-events: none; animation: black-lift 1.7s 0.1s ease-out both; }
+.title-act2 h1, .title-act2 .title-tagline, .title-act2 .title-guide, .title-act2 .title-veil { opacity: 0; }
+.title-act2 .title-veil-near { opacity: 1; }
+@keyframes black-lift { to { opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .title-leaving { animation: title-depart-still 0.8s ease both; }
-  @keyframes title-depart-still { to { opacity: 0; } }
+  .title-act1 h1, .title-act1 .title-tagline, .title-act1 .title-guide {
+    animation: reduced-fade 1.6s ease both;
+  }
+  @keyframes reduced-fade { to { opacity: 0; } }
 }
 
 /* ---------- the cinema ---------- */
