@@ -78,7 +78,7 @@ export const CONTENT = {
     'portrait': {
       popup: 'paper',
       title: 'Self Portrait, Unfinished',
-      subtitle: 'I'll tell you all about me...',
+      subtitle: "I'll tell you all about me...",
       body: '...once I get to it ofc lol.',
       link: '',
       linkLabel: '',
@@ -86,7 +86,7 @@ export const CONTENT = {
     'contact': {
       popup: 'paper',
       title: 'Correspondence',
-      subtitle: 'let's chat?',
+      subtitle: "let's chat?",
       body: 'or smth else 😏',
       link: 'MAILTO',                           // keep as 'MAILTO' to use the email above
       linkLabel: 'write to me',
