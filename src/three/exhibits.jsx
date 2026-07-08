@@ -303,10 +303,10 @@ function slateTexture() {
   ctx.textAlign = 'center'
   ctx.fillText('3', 384, 240)
   ctx.font = 'italic 30px Georgia'
-  ctx.fillText('your film goes here', 384, 370)
+  ctx.fillText('something waits behind the screen', 384, 370)
   ctx.font = '22px Georgia'
   ctx.fillStyle = 'rgba(240,232,210,.55)'
-  ctx.fillText('set introVideoSrc in content.js', 384, 415)
+  ctx.fillText('video making in progress...', 384, 415)
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
   return tex
