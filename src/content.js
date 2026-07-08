@@ -38,32 +38,32 @@ export const CONTENT = {
     'work-1': {
       popup: 'paper',
       title: 'Project One',                     // ✏️ FILL ME
-      subtitle: 'FILL ME — year · role · medium',
-      body: 'FILL ME — two or three sentences about this piece of work: what it is, why you made it, what it taught you.',
+      subtitle: 'found me!', // FILL ME — year · role · medium
+      body: 'also in the works :D', // FILL ME — two or three sentences about this piece of work: what it is, why you made it, what it taught you.
       link: '#',                                // ✏️ FILL ME — live link or repo
       linkLabel: 'View project',
     },
     'work-2': {
       popup: 'paper',
       title: 'Project Two',                     // ✏️ FILL ME
-      subtitle: 'FILL ME — year · role · medium',
-      body: 'FILL ME — description of your second project.',
+      subtitle: 'in the works!',
+      body: 'also in the works :P',
       link: '#',
       linkLabel: 'View project',
     },
     'work-3': {
       popup: 'paper',
       title: 'Project Three',                   // ✏️ FILL ME
-      subtitle: 'FILL ME — year · role · medium',
-      body: 'FILL ME — description of your third project.',
+      subtitle: 'found me!',
+      body: 'waiting for more details...',
       link: '#',
       linkLabel: 'View project',
     },
     'food': {
       popup: 'paper',
       title: 'The Apple',
-      subtitle: 'still life · always hungry',
-      body: 'FILL ME — your love of food. Favourite dishes, places, things you cook. You can link a photo gallery here.',
+      subtitle: 'will be filled soon...',
+      body: 'maybe a Beli list? lol', // FILL ME — your love of food. Favourite dishes, places, things you cook. You can link a photo gallery here.
       link: '#',                                // ✏️ FILL ME — food gallery link (optional)
       linkLabel: 'Open the food gallery',
     },
@@ -71,31 +71,31 @@ export const CONTENT = {
       popup: 'marble',
       title: 'En Garde',
       subtitle: 'marble, mostly · the sword is real',
-      body: 'FILL ME — your fencing story. How you started, what you compete in, what the sport means to you.',
+      body: 'I like to travel the world to poke people with bendy sticks',
       link: '',
       linkLabel: '',
     },
     'portrait': {
       popup: 'paper',
       title: 'Self Portrait, Unfinished',
-      subtitle: 'the artist, about herself',
-      body: 'FILL ME — a short introduction to who you are. This is your "about me" painting.',
+      subtitle: 'I'll tell you all about me...',
+      body: '...once I get to it ofc lol.',
       link: '',
       linkLabel: '',
     },
     'contact': {
       popup: 'paper',
       title: 'Correspondence',
-      subtitle: 'the artist replies to letters',
-      body: 'FILL ME — a line inviting people to write to you.',
+      subtitle: 'let's chat?',
+      body: 'or smth else 😏',
       link: 'MAILTO',                           // keep as 'MAILTO' to use the email above
       linkLabel: 'write to me',
     },
     'spotify': {
       popup: 'paper',
       title: 'Now Spinning',
-      subtitle: 'one record, on repeat',
-      body: 'FILL ME — a line about your music taste. The link below should go to your most-listened playlist.',
+      subtitle: 'my joy',
+      body: 'my recents and inspo for this portfolio!',
       link: 'SPOTIFY',                          // keep as 'SPOTIFY' to use spotifyUrl above
       linkLabel: 'Listen on Spotify',
     },
@@ -105,11 +105,11 @@ export const CONTENT = {
   secretNote: {
     // ✏️ FILL ME — the quote that breaks the fourth wall. Swap for any line you love.
     watching: '“You mistook the brightest things for the whole world.”',
-    watchingBy: '— the room',
+    watchingBy: '',
     lines: [
-      'FILL ME — this is your handwritten note.',
-      'Your views, your philosophy, why you built this room.',
-      'Write it like a letter to whoever was curious enough to find it.',
+      'Woah! you actually spent time looking around, I appreciate you! ☺️',
+      'I wanted something unique for a personal piece, while also learning how to be a more technical creative.',
+      'Thank you for taking the time to view my portfolio! More to come once I finish that Three.js Journey course :P',
     ],
     planningLabel: 'the planning process, attached',
     beyondLabel: 'open your eyes',
@@ -117,8 +117,8 @@ export const CONTENT = {
 
   // The thank-you letter under the cat's paw (after "take me beyond").
   thankYou: {
-    title: 'thank you for going beyond',
-    body: 'FILL ME — a warm closing note to the visitor who finished the whole story.',
+    title: 'Thank you for your company ❤️',
+    body: 'We all have a story to share, so feel free to reach out!',
   },
 
   // Museum wall labels. They read like real gallery labels — the
