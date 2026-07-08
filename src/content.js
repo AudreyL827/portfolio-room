@@ -6,12 +6,12 @@
 
 export const CONTENT = {
   siteTitle: 'AUDREY LI',                       // ✏️ FILL ME — your name as it appears on the loading screen
-  tagline: 'a colourless room',                 // ✏️ FILL ME — subtitle under your name
-  email: '4udr3y.li@gmail.com',                 // ✏️ FILL ME — your contact email
+  tagline: 'the colourless room: a portfolio',                 // ✏️ FILL ME — subtitle under your name
+  email: 'audreyli2025@gmail.com',                 // ✏️ FILL ME — your contact email
   // ✏️ FILL ME — paste your playlist link, e.g. 'https://open.spotify.com/playlist/XXXX'.
   // A playable Spotify player appears inside the vinyl popup automatically.
-  spotifyUrl: 'https://open.spotify.com/',
-  planningDocUrl: '#',                          // ✏️ FILL ME — link to this project's planning process doc
+  spotifyUrl: 'https://open.spotify.com/playlist/2700rSzXFDK1FqCact9aKw?si=0a43c4ca6d2a4ab6',
+  planningDocUrl: 'https://docs.google.com/document/d/1zF2Lp-dUv09x-QOmOnOEq1drrMW4FKe-dxbRZrIX4Qo/edit?usp=sharing',                          // ✏️ FILL ME — link to this project's planning process doc
   // ✏️ FILL ME — your intro film. Put the file in /public and set e.g. '/intro.mp4'.
   // It is projected onto the gallery screen with a camera zoom when
   // someone clicks the projector.
@@ -27,8 +27,8 @@ export const CONTENT = {
   hints: {
     title: 'everything faded except what mattered',           // ✏️ FILL ME — the one line on the landing page
     afterFilm: '…did you hear that? something slipped from the chandelier.',
-    afterKey: 'a key. somewhere, a sleeping guard is keeping its lock warm.',
-    catAsleep: 'the marble cat sleeps too deeply to be moved. it seems to be waiting for something.',
+    afterKey: 'a key... where does it unlock?',
+    catAsleep: 'the marble cat sleeps too deeply to be moved. it seems to be waiting for something...',
     doorFound: 'so that is what the cat was keeping warm.',
   },
 
