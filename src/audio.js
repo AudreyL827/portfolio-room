@@ -280,61 +280,64 @@ class Sfx {
     })
   }
 
-  // A sleepy meow. A cat's voice is a low buzzy source shaped by two
-  // vowel formants gliding "m-iaa-oo": fundamental rises then settles,
-  // the first formant opens and closes, breath noise underneath.
+  // A small, docile mew — high and soft, more question than demand.
+  // A gentle triangle voice (with a whisper of saw for texture) rises
+  // "mew?" and settles, shaped by one soft open-close formant.
   meow() {
     if (!this.ctx) return
     const t = this.ctx.currentTime
-    const dur = 0.85
-    // source: low sawtooth with slow vibrato
-    const o = this.ctx.createOscillator()
-    o.type = 'sawtooth'
-    o.frequency.setValueAtTime(150, t)
-    o.frequency.exponentialRampToValueAtTime(330, t + 0.22)
-    o.frequency.setValueAtTime(330, t + 0.4)
-    o.frequency.exponentialRampToValueAtTime(170, t + dur)
+    const dur = 0.55
+    const mix = this.ctx.createGain()
+    mix.gain.value = 1
+    // main voice: triangle, high and sweet
+    const o1 = this.ctx.createOscillator()
+    o1.type = 'triangle'
+    // a whisper of sawtooth so it doesn't sound like a whistle
+    const o2 = this.ctx.createOscillator()
+    o2.type = 'sawtooth'
+    const o2g = this.ctx.createGain()
+    o2g.gain.value = 0.18
+    for (const o of [o1, o2]) {
+      o.frequency.setValueAtTime(470, t)
+      o.frequency.exponentialRampToValueAtTime(760, t + 0.18)
+      o.frequency.setValueAtTime(760, t + 0.28)
+      o.frequency.exponentialRampToValueAtTime(520, t + dur)
+    }
     const vib = this.ctx.createOscillator()
-    vib.frequency.value = 9
+    vib.frequency.value = 7
     const vibGain = this.ctx.createGain()
-    vibGain.gain.value = 10
-    vib.connect(vibGain).connect(o.frequency)
-    // formant 1: "m → iaa → oo" (closed → open → closed mouth)
+    vibGain.gain.value = 7
+    vib.connect(vibGain)
+    vibGain.connect(o1.frequency)
+    vibGain.connect(o2.frequency)
+    o1.connect(mix)
+    o2.connect(o2g).connect(mix)
+    // one soft formant, opening then closing ("m-ew")
     const f1 = this.ctx.createBiquadFilter()
     f1.type = 'bandpass'
-    f1.Q.value = 3.5
-    f1.frequency.setValueAtTime(450, t)
-    f1.frequency.exponentialRampToValueAtTime(1250, t + 0.25)
-    f1.frequency.setValueAtTime(1250, t + 0.42)
-    f1.frequency.exponentialRampToValueAtTime(500, t + dur)
-    // formant 2, fainter and higher
-    const f2 = this.ctx.createBiquadFilter()
-    f2.type = 'bandpass'
-    f2.Q.value = 5
-    f2.frequency.setValueAtTime(2400, t)
-    f2.frequency.exponentialRampToValueAtTime(3100, t + 0.25)
-    f2.frequency.exponentialRampToValueAtTime(2100, t + dur)
+    f1.Q.value = 1.8
+    f1.frequency.setValueAtTime(1000, t)
+    f1.frequency.exponentialRampToValueAtTime(1750, t + 0.2)
+    f1.frequency.exponentialRampToValueAtTime(1050, t + dur)
     const g1 = this.ctx.createGain()
-    const g2 = this.ctx.createGain()
-    for (const [g, peak] of [[g1, 0.22], [g2, 0.06]]) {
-      g.gain.setValueAtTime(0.0001, t)
-      g.gain.exponentialRampToValueAtTime(peak, t + 0.12)
-      g.gain.setValueAtTime(peak, t + 0.45)
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
-    }
-    o.connect(f1).connect(g1).connect(this.master)
-    o.connect(f2).connect(g2).connect(this.master)
-    // a little breath
+    g1.gain.setValueAtTime(0.0001, t)
+    g1.gain.exponentialRampToValueAtTime(0.09, t + 0.1)
+    g1.gain.setValueAtTime(0.09, t + 0.3)
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+    mix.connect(f1).connect(g1).connect(this.master)
+    // the faintest breath
     const n = this._noise(dur)
     const nf = this.ctx.createBiquadFilter()
     nf.type = 'bandpass'
-    nf.Q.value = 1
-    nf.frequency.value = 1600
-    n.connect(nf).connect(this._env(0.02, 0.15, dur - 0.2))
+    nf.Q.value = 1.2
+    nf.frequency.value = 2400
+    n.connect(nf).connect(this._env(0.012, 0.12, dur - 0.2))
     n.start(t)
-    o.start(t)
+    o1.start(t)
+    o2.start(t)
     vib.start(t)
-    o.stop(t + dur + 0.05)
+    o1.stop(t + dur + 0.05)
+    o2.stop(t + dur + 0.05)
     vib.stop(t + dur + 0.05)
   }
 
